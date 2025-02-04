@@ -52,17 +52,17 @@ sampleCondition <- c( "Naive", "Naive", "Naive", "Naive", "Naive", "Naive", "Nai
 "CD8_TEMRA", "CD8_TEMRA", "CD8_TEMRA", "CD8_TEMRA", "CD8_TEMRA", "CD8_TEMRA", "CD8_TEMRA", "CD8_TEMRA", "CD8_TEMRA", "CD8_TEMRA" )
 sampleCondition
 
-donorid <- c("38601", "949", "2307", "5351", "6343", "34230", "34403", "36794", "36971", "37649")
+donorid <- c("D10", "D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8", "D9")
 
 donorid[rep(seq(1:10),times=7)] -> donorid
 
-sampleTable <- data.frame(sampleName = c("38601_Naive", "949_Naive", "2307_Naive", "5351_Naive", "6343_Naive", "34230_Naive", "34403_Naive", "36794_Naive", "36971_Naive", "37649_Naive",
-                                         "38601_TSCM", "949_TSCM", "2307_TSCM", "5351_TSCM", "6343_TSCM", "34230_TSCM", "34403_TSCM", "36794_TSCM", "36971_TSCM", "37649_TSCM",
-                                         "38601_Precursors", "949_Precursors", "2307_Precursors", "5351_Precursors", "6343_Precursors", "34230_Precursors", "34403_Precursors", "36794_Precursors", "36971_Precursors", "37649_Precursors", 
-                                         "38601_Effectors", "949_Effectors", "2307_Effectors", "5351_Effectors", "6343_Effectors", "34230_Effectors", "34403_Effectors", "36794_Effectors", "36971_Effectors", "37649_Effectors", 
-                                         "38601_TCM", "949_TCM" ,"2307_TCM", "5351_TCM", "6343_TCM", "34230_TCM", "34403_TCM", "36794_TCM","36971_TCM", "37649_TCM", 
-                                         "38601_TEM", "949_TEM", "2307_TEM", "5351_TEM", "6343_TEM", "34230_TEM", "34403_TEM", "36794_TEM", "36971_TEM", "37649_TEM", 
-                                         "38601_CD8_TEMRA", "949_CD8_TEMRA", "2307_CD8_TEMRA", "5351_CD8_TEMRA", "6343_CD8_TEMRA", "34230_CD8_TEMRA", "34403_CD8_TEMRA", "36794_CD8_TEMRA", "36971_CD8_TEMRA", "37649_CD8_TEMRA"),
+sampleTable <- data.frame(sampleName = c("D10_Naive", "D1_Naive", "D2_Naive", "D3_Naive", "D4_Naive", "D5_Naive", "D6_Naive", "D7_Naive", "D8_Naive", "D9_Naive",
+                                         "D10_TSCM", "D1_TSCM", "D2_TSCM", "D3_TSCM", "D4_TSCM", "D5_TSCM", "D6_TSCM", "D7_TSCM", "D8_TSCM", "D9_TSCM",
+                                         "D10_Precursors", "D1_Precursors", "D2_Precursors", "D3_Precursors", "D4_Precursors", "D5_Precursors", "D6_Precursors", "D7_Precursors", "D8_Precursors", "D9_Precursors", 
+                                         "D10_Effectors", "D1_Effectors", "D2_Effectors", "D3_Effectors", "D4_Effectors", "D5_Effectors", "D6_Effectors", "D7_Effectors", "D8_Effectors", "D9_Effectors", 
+                                         "D10_TCM", "D1_TCM" ,"D2_TCM", "D3_TCM", "D4_TCM", "D5_TCM", "D6_TCM", "D7_TCM","D8_TCM", "D9_TCM", 
+                                         "D10_TEM", "D1_TEM", "D2_TEM", "D3_TEM", "D4_TEM", "D5_TEM", "D6_TEM", "D7_TEM", "D8_TEM", "D9_TEM", 
+                                         "D10_CD8_TEMRA", "D1_CD8_TEMRA", "D2_CD8_TEMRA", "D3_CD8_TEMRA", "D4_CD8_TEMRA", "D5_CD8_TEMRA", "D6_CD8_TEMRA", "D7_CD8_TEMRA", "D8_CD8_TEMRA", "D9_CD8_TEMRA"),
 fileName = files,  condition = sampleCondition, donor = donorid)
 sampleTable
 ```
@@ -82,7 +82,7 @@ sum(genes_to_keep)
 vsd <- vst(dds, blind=FALSE)
 ```
 
-#PCA plot
+#PCA plot (Figure 1)
 ```{r}
 plotPCA(vsd, ntop = 2000, intgroup = c("condition", "donor")) -> pca.vsd
 
@@ -136,430 +136,63 @@ head(normalized_counts)
 
 #pairwise comparisons between cell types and exporting results
 ```{r}
-res_Naive_TSCM <- results(run, contrast=c("condition", "Naive", "TSCM"))
-res_Naive_TSCM<- as.data.frame(res_Naive_TSCM)
-length(res_Naive_TSCM)
+res_celltype1_celltype2 <- results(run, contrast=c("condition", "celltype1", "celltype2"))
+res_celltype1_celltype2<- as.data.frame(res_celltype1_celltype2)
+length(res_celltype1_celltype2)
 
-#row.names(res_Naive_TSCM)
-res_Naive_TSCM$ensembl_gene_id <- row.names(res_Naive_TSCM)
-head(res_Naive_TSCM)
-length(res_Naive_TSCM[res_Naive_TSCM$padj <= 0.05 & !is.na(res_Naive_TSCM$padj), ]$padj)
-#write.csv(res_Naive_TSCM, "befor_MERGE.csv")
-length(res_Naive_TSCM$baseMean)
+#row.names(res_celltype1_celltype2)
+res_celltype1_celltype2$ensembl_gene_id <- row.names(res_celltype1_celltype2)
+head(res_celltype1_celltype2)
+length(res_celltype1_celltype2[res_celltype1_celltype2$padj <= 0.05 & !is.na(res_celltype1_celltype2$padj), ]$padj)
+#write.csv(res_celltype1_celltype2, "befor_MERGE.csv")
+length(res_celltype1_celltype2$baseMean)
 
-DE_Naive_vs_TSCM <- merge(human_biotype, res_Naive_TSCM,
+DE_celltype1_vs_celltype2 <- merge(human_biotype, res_celltype1_celltype2,
                           by = "ensembl_gene_id", all.x = F)
-#write.csv(DE_Naive_vs_TSCM, "after_merge_ensembl.csv")
-#colnames(DE_Naive_vs_TSCM)
-length(DE_Naive_vs_TSCM[DE_Naive_vs_TSCM$padj <= 0.05 & !is.na(DE_Naive_vs_TSCM$padj), ]$ensembl_gene_id)
+#write.csv(DE_celltype1_vs_celltype2, "after_merge_ensembl.csv")
+#colnames(DE_celltype1_vs_celltype2)
+length(DE_celltype1_vs_celltype2[DE_celltype1_vs_celltype2$padj <= 0.05 & !is.na(DE_celltype1_vs_celltype2$padj), ]$ensembl_gene_id)
 
-DE_Naive_vs_TSCM$DE <- ifelse(DE_Naive_vs_TSCM$padj <= 0.05 & DE_Naive_vs_TSCM$log2FoldChange>1, "up" ,ifelse(DE_Naive_vs_TSCM$padj <= 0.05 & DE_Naive_vs_TSCM$log2FoldChange<1, "down", "unchanged"))
+DE_celltype1_vs_celltype2$DE <- ifelse(DE_celltype1_vs_celltype2$padj <= 0.05 & DE_celltype1_vs_celltype2$log2FoldChange>1, "up" ,ifelse(DE_celltype1_vs_celltype2$padj <= 0.05 & DE_celltype1_vs_celltype2$log2FoldChange<1, "down", "unchanged"))
 
-class(DE_Naive_vs_TSCM)
-write.csv(DE_Naive_vs_TSCM, "DE_Naive vs TSCM.csv")
-
-
-res_Naive_Pre <- results(run, contrast=c("condition", "Naive", "Precursors"))
-res_Naive_Pre<- as.data.frame(res_Naive_Pre)
-head(res_Naive_Pre$ensembl_gene_id)
-length(res_Naive_Pre[res_Naive_Pre$padj <= 0.05 & !is.na(res_Naive_Pre$padj), ]$padj)
-row.names(res_Naive_Pre)
-res_Naive_Pre$ensembl_gene_id <- row.names(res_Naive_Pre)
-head(res_Naive_Pre)
-
-DE_Naive_vs_Pre <- merge(human_biotype, res_Naive_Pre,
-                          by = "ensembl_gene_id")
-head(DE_Naive_vs_Pre)
-
-DE_Naive_vs_Pre$DE <- ifelse(DE_Naive_vs_Pre$padj <= 0.05 & DE_Naive_vs_Pre$log2FoldChange>1, "up" ,ifelse(DE_Naive_vs_Pre$padj <= 0.05 & DE_Naive_vs_Pre$log2FoldChange<1, "down", "unchanged"))
-
-length(DE_Naive_vs_Pre[DE_Naive_vs_Pre$padj <= 0.05 & !is.na(DE_Naive_vs_Pre$padj), ]$ensembl_gene_id)
-write.csv(DE_Naive_vs_Pre, "DE_Naive vs Pre.csv")
-
-
-res_Naive_Eff <- results(run, contrast=c("condition", "Naive", "Effectors"))
-res_Naive_Eff<- as.data.frame(res_Naive_Eff)
-head(res_Naive_Eff$ensembl_gene_id)
-length(res_Naive_Eff[res_Naive_Eff$padj <= 0.05 & !is.na(res_Naive_Eff$padj), ]$padj)
-row.names(res_Naive_Eff)
-res_Naive_Eff$ensembl_gene_id <- row.names(res_Naive_Eff)
-head(res_Naive_Eff)
-
-DE_Naive_vs_Eff <- merge(human_biotype, res_Naive_Eff,
-                          by = "ensembl_gene_id")
-head(DE_Naive_vs_Eff)
-
-DE_Naive_vs_Eff$DE <- ifelse(DE_Naive_vs_Eff$padj <= 0.05 & DE_Naive_vs_Eff$log2FoldChange>1, "up" ,ifelse(DE_Naive_vs_Eff$padj <= 0.05 & DE_Naive_vs_Eff$log2FoldChange<1, "down", "unchanged"))
-
-length(DE_Naive_vs_Eff[DE_Naive_vs_Eff$padj <= 0.05 & !is.na(DE_Naive_vs_Eff$padj), ]$ensembl_gene_id)
-write.csv(DE_Naive_vs_Eff, "DE_Naive vs Eff.csv")
-
-
-res_Naive_TCM <- results(run, contrast=c("condition", "Naive", "TCM"))
-res_Naive_TCM<- as.data.frame(res_Naive_TCM)
-head(res_Naive_TCM$ensembl_gene_id)
-length(res_Naive_TCM[res_Naive_TCM$padj <= 0.05 & !is.na(res_Naive_TCM$padj), ]$padj)
-row.names(res_Naive_TCM)
-res_Naive_TCM$ensembl_gene_id <- row.names(res_Naive_TCM)
-head(res_Naive_TCM)
-
-DE_Naive_vs_TCM <- merge(human_biotype, res_Naive_TCM,
-                          by = "ensembl_gene_id")
-head(DE_Naive_vs_TCM)
-
-DE_Naive_vs_TCM$DE <- ifelse(DE_Naive_vs_TCM$padj <= 0.05 & DE_Naive_vs_TCM$log2FoldChange>1, "up" ,ifelse(DE_Naive_vs_TCM$padj <= 0.05 & DE_Naive_vs_TCM$log2FoldChange<1, "down", "unchanged"))
-
-length(DE_Naive_vs_TCM[DE_Naive_vs_TCM$padj <= 0.05 & !is.na(DE_Naive_vs_TCM$padj), ]$ensembl_gene_id)
-write.csv(DE_Naive_vs_TCM, "DE_Naive vs TCM.csv")
-
-
-res_Naive_TEM <- results(run, contrast=c("condition", "Naive", "TEM"))
-res_Naive_TEM<- as.data.frame(res_Naive_TEM)
-head(res_Naive_TEM$ensembl_gene_id)
-length(res_Naive_TEM[res_Naive_TEM$padj <= 0.05 & !is.na(res_Naive_TEM$padj), ]$padj)
-row.names(res_Naive_TEM)
-res_Naive_TEM$ensembl_gene_id <- row.names(res_Naive_TEM)
-head(res_Naive_TEM)
-
-DE_Naive_vs_TEM <- merge(human_biotype, res_Naive_TEM,
-                          by = "ensembl_gene_id")
-head(DE_Naive_vs_TEM)
-
-DE_Naive_vs_TEM$DE <- ifelse(DE_Naive_vs_TEM$padj <= 0.05 & DE_Naive_vs_TEM$log2FoldChange>1, "up" ,ifelse(DE_Naive_vs_TEM$padj <= 0.05 & DE_Naive_vs_TEM$log2FoldChange<1, "down", "unchanged"))
-
-length(DE_Naive_vs_TEM[DE_Naive_vs_TEM$padj <= 0.05 & !is.na(DE_Naive_vs_TEM$padj), ]$ensembl_gene_id)
-write.csv(DE_Naive_vs_TEM, "DE_Naive vs TEM.csv")
-
-
-res_Naive_CD8RA <- results(run, contrast=c("condition", "Naive", "CD8_TEMRA"))
-res_Naive_CD8RA<- as.data.frame(res_Naive_CD8RA)
-head(res_Naive_CD8RA$ensembl_gene_id)
-length(res_Naive_CD8RA[res_Naive_CD8RA$padj <= 0.05 & !is.na(res_Naive_CD8RA$padj), ]$padj)
-row.names(res_Naive_CD8RA)
-res_Naive_CD8RA$ensembl_gene_id <- row.names(res_Naive_CD8RA)
-head(res_Naive_CD8RA)
-
-DE_Naive_vs_CD8RA <- merge(human_biotype, res_Naive_CD8RA,
-                          by = "ensembl_gene_id")
-head(DE_Naive_vs_CD8RA)
-
-DE_Naive_vs_CD8RA$DE <- ifelse(DE_Naive_vs_CD8RA$padj <= 0.05 & DE_Naive_vs_CD8RA$log2FoldChange>1, "up" ,ifelse(DE_Naive_vs_CD8RA$padj <= 0.05 & DE_Naive_vs_CD8RA$log2FoldChange<1, "down", "unchanged"))
-
-length(DE_Naive_vs_CD8RA[DE_Naive_vs_CD8RA$padj <= 0.05 & !is.na(DE_Naive_vs_CD8RA$padj), ]$ensembl_gene_id)
-write.csv(DE_Naive_vs_CD8RA, "DE_Naive vs CD8RA.csv")
-
-
-res_TSCM_Pre <- results(run, contrast=c("condition", "TSCM", "Precursors"))
-res_TSCM_Pre<- as.data.frame(res_TSCM_Pre)
-head(res_TSCM_Pre$ensembl_gene_id)
-length(res_TSCM_Pre[res_TSCM_Pre$padj <= 0.05 & !is.na(res_TSCM_Pre$padj), ]$padj)
-row.names(res_TSCM_Pre)
-res_TSCM_Pre$ensembl_gene_id <- row.names(res_TSCM_Pre)
-head(res_TSCM_Pre)
-
-DE_TSCM_vs_Pre <- merge(human_biotype, res_TSCM_Pre,
-                          by = "ensembl_gene_id")
-head(DE_TSCM_vs_Pre)
-
-DE_TSCM_vs_Pre$DE <- ifelse(DE_TSCM_vs_Pre$padj <= 0.05 & DE_TSCM_vs_Pre$log2FoldChange>1, "up" ,ifelse(DE_TSCM_vs_Pre$padj <= 0.05 & DE_TSCM_vs_Pre$log2FoldChange<1, "down", "unchanged"))
-
-length(DE_TSCM_vs_Pre[DE_TSCM_vs_Pre$padj <= 0.05 & !is.na(DE_TSCM_vs_Pre$padj), ]$ensembl_gene_id)
-write.csv(DE_TSCM_vs_Pre, "DE_TSCM vs Pre.csv")
-
-
-res_TSCM_Eff <- results(run, contrast=c("condition", "TSCM", "Effectors"))
-res_TSCM_Eff<- as.data.frame(res_TSCM_Eff)
-head(res_TSCM_Eff$ensembl_gene_id)
-length(res_TSCM_Eff[res_TSCM_Eff$padj <= 0.05 & !is.na(res_TSCM_Eff$padj), ]$padj)
-row.names(res_TSCM_Eff)
-res_TSCM_Eff$ensembl_gene_id <- row.names(res_TSCM_Eff)
-head(res_TSCM_Eff)
-
-DE_TSCM_vs_Eff <- merge(human_biotype, res_TSCM_Eff,
-                          by = "ensembl_gene_id")
-head(DE_TSCM_vs_Eff)
-
-DE_TSCM_vs_Eff$DE <- ifelse(DE_TSCM_vs_Eff$padj <= 0.05 & DE_TSCM_vs_Eff$log2FoldChange>1, "up" ,ifelse(DE_TSCM_vs_Eff$padj <= 0.05 & DE_TSCM_vs_Eff$log2FoldChange<1, "down", "unchanged"))
-
-length(DE_TSCM_vs_Eff[DE_TSCM_vs_Eff$padj <= 0.05 & !is.na(DE_TSCM_vs_Eff$padj), ]$ensembl_gene_id)
-write.csv(DE_TSCM_vs_Eff, "DE_TSCM vs Eff.csv")
-
-
-res_TSCM_TCM <- results(run, contrast=c("condition", "TSCM", "TCM"))
-res_TSCM_TCM<- as.data.frame(res_TSCM_TCM)
-head(res_TSCM_TCM$ensembl_gene_id)
-length(res_TSCM_TCM[res_TSCM_TCM$padj <= 0.05 & !is.na(res_TSCM_TCM$padj), ]$padj)
-row.names(res_TSCM_TCM)
-res_TSCM_TCM$ensembl_gene_id <- row.names(res_TSCM_TCM)
-head(res_TSCM_TCM)
-
-DE_TSCM_vs_TCM <- merge(human_biotype, res_TSCM_TCM,
-                          by = "ensembl_gene_id")
-head(DE_TSCM_vs_TCM)
-
-DE_TSCM_vs_TCM$DE <- ifelse(DE_TSCM_vs_TCM$padj <= 0.05 & DE_TSCM_vs_TCM$log2FoldChange>1, "up" ,ifelse(DE_TSCM_vs_TCM$padj <= 0.05 & DE_TSCM_vs_TCM$log2FoldChange<1, "down", "unchanged"))
-
-length(DE_TSCM_vs_TCM[DE_TSCM_vs_TCM$padj <= 0.05 & !is.na(DE_TSCM_vs_TCM$padj), ]$ensembl_gene_id)
-write.csv(DE_TSCM_vs_TCM, "DE_TSCM vs TCM.csv")
-
-
-res_TSCM_TEM <- results(run, contrast=c("condition", "TSCM", "TEM"))
-res_TSCM_TEM<- as.data.frame(res_TSCM_TEM)
-head(res_TSCM_TEM$ensembl_gene_id)
-length(res_TSCM_TEM[res_TSCM_TEM$padj <= 0.05 & !is.na(res_TSCM_TEM$padj), ]$padj)
-row.names(res_TSCM_TEM)
-res_TSCM_TEM$ensembl_gene_id <- row.names(res_TSCM_TEM)
-head(res_TSCM_TEM)
-
-DE_TSCM_vs_TEM <- merge(human_biotype, res_TSCM_TEM,
-                          by = "ensembl_gene_id")
-head(DE_TSCM_vs_TEM)
-
-DE_TSCM_vs_TEM$DE <- ifelse(DE_TSCM_vs_TEM$padj <= 0.05 & DE_TSCM_vs_TEM$log2FoldChange>1, "up" ,ifelse(DE_TSCM_vs_TEM$padj <= 0.05 & DE_TSCM_vs_TEM$log2FoldChange<1, "down", "unchanged"))
-
-length(DE_TSCM_vs_TEM[DE_TSCM_vs_TEM$padj <= 0.05 & !is.na(DE_TSCM_vs_TEM$padj), ]$ensembl_gene_id)
-write.csv(DE_TSCM_vs_TEM, "DE_TSCM vs TEM.csv")
-
-
-res_TSCM_CD8RA <- results(run, contrast=c("condition", "TSCM", "CD8_TEMRA"))
-res_TSCM_CD8RA<- as.data.frame(res_TSCM_CD8RA)
-head(res_TSCM_CD8RA$ensembl_gene_id)
-length(res_TSCM_CD8RA[res_TSCM_CD8RA$padj <= 0.05 & !is.na(res_TSCM_CD8RA$padj), ]$padj)
-row.names(res_TSCM_CD8RA)
-res_TSCM_CD8RA$ensembl_gene_id <- row.names(res_TSCM_CD8RA)
-head(res_TSCM_CD8RA)
-
-DE_TSCM_vs_CD8RA <- merge(human_biotype, res_TSCM_CD8RA,
-                          by = "ensembl_gene_id")
-head(DE_TSCM_vs_CD8RA)
-
-DE_TSCM_vs_CD8RA$DE <- ifelse(DE_TSCM_vs_CD8RA$padj <= 0.05 & DE_TSCM_vs_CD8RA$log2FoldChange>1, "up" ,ifelse(DE_TSCM_vs_CD8RA$padj <= 0.05 & DE_TSCM_vs_CD8RA$log2FoldChange<1, "down", "unchanged"))
-
-length(DE_TSCM_vs_CD8RA[DE_TSCM_vs_CD8RA$padj <= 0.05 & !is.na(DE_TSCM_vs_CD8RA$padj), ]$ensembl_gene_id)
-write.csv(DE_TSCM_vs_CD8RA, "DE_TSCM vs CD8RA.csv")
-
-
-res_Pre_Eff <- results(run, contrast=c("condition", "Precursors", "Effectors"))
-res_Pre_Eff<- as.data.frame(res_Pre_Eff)
-head(res_Pre_Eff$ensembl_gene_id)
-length(res_Pre_Eff[res_Pre_Eff$padj <= 0.05 & !is.na(res_Pre_Eff$padj), ]$padj)
-row.names(res_Pre_Eff)
-res_Pre_Eff$ensembl_gene_id <- row.names(res_Pre_Eff)
-head(res_Pre_Eff)
-
-DE_Pre_vs_Eff <- merge(human_biotype, res_Pre_Eff,
-                          by = "ensembl_gene_id")
-head(DE_Pre_vs_Eff)
-
-DE_Pre_vs_Eff$DE <- ifelse(DE_Pre_vs_Eff$padj <= 0.05 & DE_Pre_vs_Eff$log2FoldChange>1, "up" ,ifelse(DE_Pre_vs_Eff$padj <= 0.05 & DE_Pre_vs_Eff$log2FoldChange<1, "down", "unchanged"))
-
-length(DE_Pre_vs_Eff[DE_Pre_vs_Eff$padj <= 0.05 & !is.na(DE_Pre_vs_Eff$padj), ]$ensembl_gene_id)
-write.csv(DE_Pre_vs_Eff, "DE_Pre vs Eff.csv")
-
-
-res_Pre_TCM <- results(run, contrast=c("condition", "Precursors", "TCM"))
-res_Pre_TCM<- as.data.frame(res_Pre_TCM)
-head(res_Pre_TCM$ensembl_gene_id)
-length(res_Pre_TCM[res_Pre_TCM$padj <= 0.05 & !is.na(res_Pre_TCM$padj), ]$padj)
-row.names(res_Pre_TCM)
-res_Pre_TCM$ensembl_gene_id <- row.names(res_Pre_TCM)
-head(res_Pre_TCM)
-
-DE_Pre_vs_TCM <- merge(human_biotype, res_Pre_TCM,
-                          by = "ensembl_gene_id")
-head(DE_Pre_vs_TCM)
-
-DE_Pre_vs_TCM$DE <- ifelse(DE_Pre_vs_TCM$padj <= 0.05 & DE_Pre_vs_TCM$log2FoldChange>1, "up" ,ifelse(DE_Pre_vs_TCM$padj <= 0.05 & DE_Pre_vs_TCM$log2FoldChange<1, "down", "unchanged"))
-
-length(DE_Pre_vs_TCM[DE_Pre_vs_TCM$padj <= 0.05 & !is.na(DE_Pre_vs_TCM$padj), ]$ensembl_gene_id)
-write.csv(DE_Pre_vs_TCM, "DE_Pre vs TCM.csv")
-
-
-res_Pre_TEM <- results(run, contrast=c("condition", "Precursors", "TEM"))
-res_Pre_TEM<- as.data.frame(res_Pre_TEM)
-head(res_Pre_TEM$ensembl_gene_id)
-length(res_Pre_TEM[res_Pre_TEM$padj <= 0.05 & !is.na(res_Pre_TEM$padj), ]$padj)
-row.names(res_Pre_TEM)
-res_Pre_TEM$ensembl_gene_id <- row.names(res_Pre_TEM)
-head(res_Pre_TEM)
-
-DE_Pre_vs_TEM <- merge(human_biotype, res_Pre_TEM,
-                          by = "ensembl_gene_id")
-head(DE_Pre_vs_TEM)
-
-DE_Pre_vs_TEM$DE <- ifelse(DE_Pre_vs_TEM$padj <= 0.05 & DE_Pre_vs_TEM$log2FoldChange>1, "up" ,ifelse(DE_Pre_vs_TEM$padj <= 0.05 & DE_Pre_vs_TEM$log2FoldChange<1, "down", "unchanged"))
-
-length(DE_Pre_vs_TEM[DE_Pre_vs_TEM$padj <= 0.05 & !is.na(DE_Pre_vs_TEM$padj), ]$ensembl_gene_id)
-write.csv(DE_Pre_vs_TEM, "DE_Pre vs TEM.csv")
-
-
-res_Pre_CD8RA <- results(run, contrast=c("condition", "Precursors", "CD8_TEMRA"))
-res_Pre_CD8RA<- as.data.frame(res_Pre_CD8RA)
-head(res_Pre_CD8RA$ensembl_gene_id)
-length(res_Pre_CD8RA[res_Pre_CD8RA$padj <= 0.05 & !is.na(res_Pre_CD8RA$padj), ]$padj)
-row.names(res_Pre_CD8RA)
-res_Pre_CD8RA$ensembl_gene_id <- row.names(res_Pre_CD8RA)
-head(res_Pre_CD8RA)
-
-DE_Pre_vs_CD8RA <- merge(human_biotype, res_Pre_CD8RA,
-                          by = "ensembl_gene_id")
-head(DE_Pre_vs_CD8RA)
-
-DE_Pre_vs_CD8RA$DE <- ifelse(DE_Pre_vs_CD8RA$padj <= 0.05 & DE_Pre_vs_CD8RA$log2FoldChange>1, "up" ,ifelse(DE_Pre_vs_CD8RA$padj <= 0.05 & DE_Pre_vs_CD8RA$log2FoldChange<1, "down", "unchanged"))
-
-length(DE_Pre_vs_CD8RA[DE_Pre_vs_CD8RA$padj <= 0.05 & !is.na(DE_Pre_vs_CD8RA$padj), ]$ensembl_gene_id)
-write.csv(DE_Pre_vs_CD8RA, "DE_Pre vs CD8RA.csv")
-
-
-res_Eff_TCM <- results(run, contrast=c("condition", "Effectors", "TCM"))
-res_Eff_TCM<- as.data.frame(res_Eff_TCM)
-head(res_Eff_TCM$ensembl_gene_id)
-length(res_Eff_TCM[res_Eff_TCM$padj <= 0.05 & !is.na(res_Eff_TCM$padj), ]$padj)
-row.names(res_Eff_TCM)
-res_Eff_TCM$ensembl_gene_id <- row.names(res_Eff_TCM)
-head(res_Eff_TCM)
-
-DE_Eff_vs_TCM <- merge(human_biotype, res_Eff_TCM,
-                          by = "ensembl_gene_id")
-head(DE_Eff_vs_TCM)
-
-DE_Eff_vs_TCM$DE <- ifelse(DE_Eff_vs_TCM$padj <= 0.05 & DE_Eff_vs_TCM$log2FoldChange>1, "up" ,ifelse(DE_Eff_vs_TCM$padj <= 0.05 & DE_Eff_vs_TCM$log2FoldChange<1, "down", "unchanged"))
-
-length(DE_Eff_vs_TCM[DE_Eff_vs_TCM$padj <= 0.05 & !is.na(DE_Eff_vs_TCM$padj), ]$ensembl_gene_id)
-write.csv(DE_Eff_vs_TCM, "DE_Eff vs TCM.csv")
-
-
-res_Eff_TEM <- results(run, contrast=c("condition", "Effectors", "TEM"))
-res_Eff_TEM<- as.data.frame(res_Eff_TEM)
-head(res_Eff_TEM$ensembl_gene_id)
-length(res_Eff_TEM[res_Eff_TEM$padj <= 0.05 & !is.na(res_Eff_TEM$padj), ]$padj)
-row.names(res_Eff_TEM)
-res_Eff_TEM$ensembl_gene_id <- row.names(res_Eff_TEM)
-head(res_Eff_TEM)
-
-DE_Eff_vs_TEM <- merge(human_biotype, res_Eff_TEM,
-                          by = "ensembl_gene_id")
-head(DE_Eff_vs_TEM)
-
-DE_Eff_vs_TEM$DE <- ifelse(DE_Eff_vs_TEM$padj <= 0.05 & DE_Eff_vs_TEM$log2FoldChange>1, "up" ,ifelse(DE_Eff_vs_TEM$padj <= 0.05 & DE_Eff_vs_TEM$log2FoldChange<1, "down", "unchanged"))
-
-length(DE_Eff_vs_TEM[DE_Eff_vs_TEM$padj <= 0.05 & !is.na(DE_Eff_vs_TEM$padj), ]$ensembl_gene_id)
-write.csv(DE_Eff_vs_TEM, "DE_Eff vs TEM.csv")
-
-
-res_Eff_CD8RA <- results(run, contrast=c("condition", "Effectors", "CD8_TEMRA"))
-res_Eff_CD8RA<- as.data.frame(res_Eff_CD8RA)
-head(res_Eff_CD8RA$ensembl_gene_id)
-length(res_Eff_CD8RA[res_Eff_CD8RA$padj <= 0.05 & !is.na(res_Eff_CD8RA$padj), ]$padj)
-row.names(res_Eff_CD8RA)
-res_Eff_CD8RA$ensembl_gene_id <- row.names(res_Eff_CD8RA)
-head(res_Eff_CD8RA)
-
-DE_Eff_vs_CD8RA <- merge(human_biotype, res_Eff_CD8RA,
-                          by = "ensembl_gene_id")
-head(DE_Eff_vs_CD8RA)
-
-DE_Eff_vs_CD8RA$DE <- ifelse(DE_Eff_vs_CD8RA$padj <= 0.05 & DE_Eff_vs_CD8RA$log2FoldChange>1, "up" ,ifelse(DE_Eff_vs_CD8RA$padj <= 0.05 & DE_Eff_vs_CD8RA$log2FoldChange<1, "down", "unchanged"))
-
-length(DE_Eff_vs_CD8RA[DE_Eff_vs_CD8RA$padj <= 0.05 & !is.na(DE_Eff_vs_CD8RA$padj), ]$ensembl_gene_id)
-write.csv(DE_Eff_vs_CD8RA, "DE_Eff vs CD8RA.csv")
-
-
-res_TCM_TEM <- results(run, contrast=c("condition", "TCM", "TEM"))
-res_TCM_TEM<- as.data.frame(res_TCM_TEM)
-head(res_TCM_TEM$ensembl_gene_id)
-length(res_TCM_TEM[res_TCM_TEM$padj <= 0.05 & !is.na(res_TCM_TEM$padj), ]$padj)
-row.names(res_TCM_TEM)
-res_TCM_TEM$ensembl_gene_id <- row.names(res_TCM_TEM)
-head(res_TCM_TEM)
-
-DE_TCM_vs_TEM <- merge(human_biotype, res_TCM_TEM,
-                          by = "ensembl_gene_id")
-head(DE_TCM_vs_TEM)
-
-DE_TCM_vs_TEM$DE <- ifelse(DE_TCM_vs_TEM$padj <= 0.05 & DE_TCM_vs_TEM$log2FoldChange>1, "up" ,ifelse(DE_TCM_vs_TEM$padj <= 0.05 & DE_TCM_vs_TEM$log2FoldChange<1, "down", "unchanged"))
-
-length(DE_TCM_vs_TEM[DE_TCM_vs_TEM$padj <= 0.05 & !is.na(DE_TCM_vs_TEM$padj), ]$ensembl_gene_id)
-write.csv(DE_TCM_vs_TEM, "DE_TCM vs TEM.csv")
-
-
-res_TCM_CD8RA <- results(run, contrast=c("condition", "TCM", "CD8_TEMRA"))
-res_TCM_CD8RA<- as.data.frame(res_TCM_CD8RA)
-head(res_TCM_CD8RA$ensembl_gene_id)
-length(res_TCM_CD8RA[res_TCM_CD8RA$padj <= 0.05 & !is.na(res_TCM_CD8RA$padj), ]$padj)
-row.names(res_TCM_CD8RA)
-res_TCM_CD8RA$ensembl_gene_id <- row.names(res_TCM_CD8RA)
-head(res_TCM_CD8RA)
-
-DE_TCM_vs_CD8RA <- merge(human_biotype, res_TCM_CD8RA,
-                          by = "ensembl_gene_id")
-head(DE_TCM_vs_CD8RA)
-
-DE_TCM_vs_CD8RA$DE <- ifelse(DE_TCM_vs_CD8RA$padj <= 0.05 & DE_TCM_vs_CD8RA$log2FoldChange>1, "up" ,ifelse(DE_TCM_vs_CD8RA$padj <= 0.05 & DE_TCM_vs_CD8RA$log2FoldChange<1, "down", "unchanged"))
-
-length(DE_TCM_vs_CD8RA[DE_TCM_vs_CD8RA$padj <= 0.05 & !is.na(DE_TCM_vs_CD8RA$padj), ]$ensembl_gene_id)
-write.csv(DE_TCM_vs_CD8RA, "DE_TCM vs CD8RA.csv")
-
-
-res_TEM_CD8RA <- results(run, contrast=c("condition", "TEM", "CD8_TEMRA"))
-res_TEM_CD8RA<- as.data.frame(res_TEM_CD8RA)
-head(res_TEM_CD8RA$ensembl_gene_id)
-length(res_TEM_CD8RA[res_TEM_CD8RA$padj <= 0.05 & !is.na(res_TEM_CD8RA$padj), ]$padj)
-row.names(res_TEM_CD8RA)
-res_TEM_CD8RA$ensembl_gene_id <- row.names(res_TEM_CD8RA)
-head(res_TEM_CD8RA)
-
-DE_TEM_vs_CD8RA <- merge(human_biotype, res_TEM_CD8RA,
-                          by = "ensembl_gene_id")
-head(DE_TEM_vs_CD8RA)
-
-DE_TEM_vs_CD8RA$DE <- ifelse(DE_TEM_vs_CD8RA$padj <= 0.05 & DE_TEM_vs_CD8RA$log2FoldChange>1, "up" ,ifelse(DE_TEM_vs_CD8RA$padj <= 0.05 & DE_TEM_vs_CD8RA$log2FoldChange<1, "down", "unchanged"))
-
-length(DE_TEM_vs_CD8RA[DE_TEM_vs_CD8RA$padj <= 0.05 & !is.na(DE_TEM_vs_CD8RA$padj), ]$ensembl_gene_id)
-write.csv(DE_TEM_vs_CD8RA, "DE_TEM vs CD8RA.csv")
+class(DE_celltype1_vs_celltype2)
+write.csv(DE_celltype1_vs_celltype2, "DE_celltype1 vs celltype2.csv")
 
 ```
 
-#volcano plots for CD4-TEMRA vs CD8-TEMRA
+#volcano plots for CD4-TEMRA vs CD8-TEMRA (Figure 1)
 ```{r}
-read.csv("../DE_Eff vs CD8RA.csv", header = T) -> ev8
-read.csv("../DE_Pre vs CD8RA.csv", header = T) -> pv8
+read.csv("../DE_celltype1 vs celltype2.csv", header = T) -> c1vc2
 ```
 
 ```{r}
-ev8 %>% dplyr::filter(!is.na(external_gene_name)) %>% dplyr::filter(padj <= 0.05) -> ev8
-ev8 %>% head()
+c1vc2 %>% dplyr::filter(!is.na(external_gene_name)) %>% dplyr::filter(padj <= 0.05) -> c1vc2
+c1vc2 %>% head()
 
-pv8 %>% dplyr::filter(!is.na(external_gene_name)) %>% dplyr::filter(padj <= 0.05) -> pv8
-pv8 %>% head()
+c1vc2$X <- NULL
+rownames(c1vc2) <- c1vc2$ensembl_gene_id
+c1vc2 %>% head()
 
-ev8$X <- NULL
-rownames(ev8) <- ev8$ensembl_gene_id
-ev8 %>% head()
-
-pv8$X <- NULL
-rownames(pv8) <- pv8$ensembl_gene_id
-pv8 %>% head()
 ```
 
 ```{r}
 #color based on cell type
 keyvals <- ifelse(
-    ev8$log2FoldChange > 1, '#F8766D',
-      ifelse(ev8$log2FoldChange < -1, '#FF00FF',
+    c1vc2$log2FoldChange > 1, '#F8766D',
+      ifelse(c1vc2$log2FoldChange < -1, '#FF00FF',
         'black'))
   keyvals[is.na(keyvals)] <- 'black'
-  names(keyvals)[keyvals == '#F8766D'] <- 'Effectors Up'
+  names(keyvals)[keyvals == '#F8766D'] <- 'Celltype1 Up'
   names(keyvals)[keyvals == 'black'] <- 'NS'
-  names(keyvals)[keyvals == '#FF00FF'] <- 'CD8-TEMRA Up'
+  names(keyvals)[keyvals == '#FF00FF'] <- 'Celltype2 Up'
 
-EnhancedVolcano(ev8,
-    lab = ev8$external_gene_name,
+EnhancedVolcano(c1vc2,
+    lab = c1vc2$external_gene_name,
     x = 'log2FoldChange',
     y = 'padj',
-    title = 'Effector versus CD8-TEMRA',
+    title = 'Celltype1 versus Celltype2',
     subtitle = NULL,
-    selectLab = ifelse(ev8$log2FoldChange > 2 | ev8$log2FoldChange < -2, as.character(ev8$external_gene_name),''),
+    selectLab = ifelse(c1vc2$log2FoldChange > 2 | c1vc2$log2FoldChange < -2, as.character(c1vc2$external_gene_name),''),
     #xlim = c(-0.3, 0.75),
     xlab = "Fold Change",
     axisLabSize = 10,
@@ -582,53 +215,8 @@ EnhancedVolcano(ev8,
     gridlines.minor = F
     ) -> p1
 
-pdf(sprintf("%s/EvCD8-TEMRA_Volcano.pdf", IMG_OUT), width=8, height=6)
+pdf(sprintf("%s/Celltype1vCelltype2_Volcano.pdf", IMG_OUT), width=8, height=6)
 p1
-dev.off()
-```
-
-```{r}
-#color based on cell type
-keyvals <- ifelse(
-    pv8$log2FoldChange > 1, '#00BFC4',
-      ifelse(pv8$log2FoldChange < -1, '#FF00FF',
-        'black'))
-  keyvals[is.na(keyvals)] <- 'black'
-  names(keyvals)[keyvals == '#00BFC4'] <- 'Precursors Up'
-  names(keyvals)[keyvals == 'black'] <- 'NS'
-  names(keyvals)[keyvals == '#FF00FF'] <- 'CD8-TEMRA Up'
-
-EnhancedVolcano(pv8,
-    lab = pv8$external_gene_name,
-    x = 'log2FoldChange',
-    y = 'padj',
-    title = 'Precursors versus CD8-TEMRA',
-    subtitle = NULL,
-    selectLab = ifelse(pv8$log2FoldChange > 2 | pv8$log2FoldChange < -2, as.character(pv8$external_gene_name),''),
-    #xlim = c(-0.3, 0.75),
-    xlab = "Fold Change",
-    axisLabSize = 10,
-    colCustom = keyvals,
-    pCutoff = 0.05,
-    FCcutoff = 1,
-    pointSize = 2.0,
-    labSize = 2.5,
-    cutoffLineType = 'twodash',
-    cutoffLineWidth = 0.8,
-    legendLabels=c('Not sig.','FoldChange','p-value',
-      'p-value & FoldChange'),  
-    legendPosition = 'right',
-    legendLabSize = 10,
-    legendIconSize = 3.0,
-    drawConnectors = T,
-    widthConnectors = 0.2,
-    max.overlaps = 50,
-    gridlines.major = F,
-    gridlines.minor = F
-    ) -> p2
-
-pdf(sprintf("%s/PvCD8-TEMRA_Volcano.pdf", IMG_OUT), width=8, height=6)
-p2
 dev.off()
 ```
 
@@ -684,7 +272,7 @@ colAnn <- HeatmapAnnotation(df = ann,
   gap = unit(1, 'mm'))
 ```
 
-#generate heatmap after ordering rows and inputting symbols
+#generate heatmap after ordering rows and inputting symbols (Figure 1 and 3)
 ```{r}
 log2(counts(run) + 0.5)[ne100, ] -> l2.run.ne100
 
@@ -723,89 +311,7 @@ p3
 dev.off()
 ```
 
-#volcano plots for Naive vs TSCM, and TSCM vs TCM
-```{r}
-read.csv("G:/Genomics data analysis/RSS1/DEseq2/Data files/CSV files/DE_Naive vs TSCM.csv", header = T) -> nvs
-read.csv("G:/Genomics data analysis/RSS1/DEseq2/Data files/CSV files/DE_TSCM vs TCM.csv", header = T) -> svc
-```
-
-```{r}
-nvs %>% dplyr::filter(!is.na(external_gene_name)) %>% dplyr::filter(padj <= 0.05) -> nvs
-svc %>% dplyr::filter(!is.na(external_gene_name)) %>% dplyr::filter(padj <= 0.05) -> svc
-```
-
-```{r}
-cyto.genelist <- read.csv("../TEMRA-enriched_111 genes_SI paper.txt", header = F)
-```
-
-```{r}
-lab_italics <- paste0("italic('", nvs$external_gene_name, "')")
-  selectLab_italics = paste0(
-    "italic('",
-    cyto.genelist,
-    "')")
-
-EnhancedVolcano(nvs,
-    lab = lab_italics,
-    x = 'log2FoldChange',
-    y = 'pvalue',
-    title = 'Naive versus TSCM',
-    selectLab = selectLab_italics,
-    pCutoff = 0.05,
-    FCcutoff = 1,
-    pointSize = 2.0,
-    labSize = 3.0,
-    cutoffLineType = 'twodash',
-    cutoffLineWidth = 0.8,
-    legendLabels=c('Not sig.','Log (base 2) FC','p-value',
-      'p-value & Log (base 2) FC'),
-    legendPosition = 'right',
-    legendLabSize = 10,
-    legendIconSize = 3.0,
-    parseLabels = TRUE) -> p4
-#p + coord_cartesian(xlim= c(-10,10), ylim = c(-1.5, 40)) -> p1
-
-pdf(sprintf("%s/NvSCM_volcano.pdf", IMG_OUT), width=7.5, height=5)
-p4
-dev.off()
-```
-
-```{r}
-lab_italics <- paste0("italic('", svc$external_gene_name, "')")
-  selectLab_italics = paste0(
-    "italic('",
-    cyto.genelist,
-    "')")
-  
-EnhancedVolcano(svc,
-    lab = lab_italics,
-    x = 'log2FoldChange',
-    y = 'pvalue',
-    title = 'TSCM versus TCM',
-    selectLab = selectLab_italics,
-    axisLabSize = 10,
-    pCutoff = 0.05,
-    FCcutoff = 1,
-    pointSize = 2.0,
-    labSize = 3.0,
-    cutoffLineType = 'twodash',
-    cutoffLineWidth = 0.8,
-    legendLabels=c('Not sig.','Log (base 2) FC','p-value',
-      'p-value & Log (base 2) FC'),
-    legendPosition = 'right',
-    legendLabSize = 10,
-    legendIconSize = 3.0,
-    parseLabels = TRUE,
-    #vline = c(-5, 10),
-    #hline = c(10e-40)
-    ) -> p5
-
-pdf(sprintf("%s/SCMvCM_volcano.pdf", IMG_OUT), width=7.5, height=5)
-p5
-dev.off()
-```
-
-#PCA plot for Naive vs Effectors genes
+#PCA plot for Naive vs Effectors genes (Figure 3)
 ```{r}
 read.csv("../nve_l2fc2_both.txt", header = F) -> nve2
 nve2$V1 -> nve2
@@ -836,111 +342,45 @@ annotated_pca_plot
 dev.off()
 ```
 
-#gsea plots for CD4-TEMRA-E vs CD8-TEMRA
+#gsea plots for Celltype1 vs Celltype2 (Figure 1 and 3)
 ```{r}
 #GSEA using DESeq2 results
 
-read.csv("F:/Genomics data analysis/RSS1/DEseq2/Data files/CSV files/DE_Eff vs CD8RA.csv", header = T) -> res.eff.cd8ra
-#rownames(res_Naive_all) <- res_Naive_all$X
-#res_Naive_all$X <- NULL
+read.csv("../DE_Celltype1 vs Celltype2.csv", header = T) -> res.c1.c2
 
-eff.v.cd8ra <- res.eff.cd8ra$log2FoldChange
-names(eff.v.cd8ra) <- res.eff.cd8ra$external_gene_name
-eff.v.cd8ra <- na.omit(eff.v.cd8ra)
-eff.v.cd8ra %>% length()
-which(duplicated(eff.v.cd8ra)) %>% length()
-eff.v.cd8ra <- eff.v.cd8ra[which(!duplicated(eff.v.cd8ra))]
-eff.v.cd8ra %>% length()
-eff.v.cd8ra <- sort(eff.v.cd8ra, decreasing = T)
-eff.v.cd8ra %>% head()
+c1.v.c2 <- res.c1.c2$log2FoldChange
+names(c1.v.c2) <- res.c1.c2$external_gene_name
+c1.v.c2 <- na.omit(c1.v.c2)
+c1.v.c2 %>% length()
+which(duplicated(c1.v.c2)) %>% length()
+c1.v.c2 <- c1.v.c2[which(!duplicated(c1.v.c2))]
+c1.v.c2 %>% length()
+c1.v.c2 <- sort(c1.v.c2, decreasing = T)
+c1.v.c2 %>% head()
 
 ```
 
 ```{r}
-cyto.list <- read.csv("F:/Genomics data analysis/RSS1/GMT/cytotoxicity_rk2.csv", header = T)
+cyto.list <- read.csv("../cytotoxicity_rk2.csv", header = T)
 ```
 
 ```{r}
-eff.v.cd8ra.gsea <- clusterProfiler::GSEA(geneList = eff.v.cd8ra, TERM2GENE = cyto.list, pvalueCutoff = 1)
+c1.v.c2.gsea <- clusterProfiler::GSEA(geneList = c1.v.c2, TERM2GENE = cyto.list, pvalueCutoff = 1)
 
-gseaplot2(eff.v.cd8ra.gsea, geneSetID = 1:4, pvalue_table = FALSE,
+gseaplot2(c1.v.c2.gsea, geneSetID = 1:4, pvalue_table = FALSE,
           color = c("#E495A5", "#86B875", "#7DB0DD", "#000000"), ES_geom = "dot",
-          title = "CD4-TEMRA-Effectors vs CD8-TEMRA",
+          title = "CD4-TEMRA-c1ectors vs CD8-TEMRA",
           base_size = 12) -> p6
 
-pdf(sprintf("%s/gsea_4lists_eff.v.cd8ra.pdf", IMG_OUT), width=7, height=6)
+pdf(sprintf("%s/gsea_4lists_c1.v.c2.pdf", IMG_OUT), width=7, height=6)
 p6
 dev.off()
 ```
 
-#gsea plots for TSCM vs Naive or TCM
 ```{r}
-read.csv("F:/Genomics data analysis/RSS1/DEseq2/Data files/CSV files/DE_Naive vs TSCM.csv", header = T) -> res.n.scm
-#rownames(res_Naive_all) <- res_Naive_all$X
-#res_Naive_all$X <- NULL
-
-n.v.scm <- res.n.scm$log2FoldChange
-names(n.v.scm) <- res.n.scm$external_gene_name
-n.v.scm <- na.omit(n.v.scm)
-n.v.scm %>% length()
-which(duplicated(n.v.scm)) %>% length()
-n.v.scm <- n.v.scm[which(!duplicated(n.v.scm))]
-n.v.scm %>% length()
-n.v.scm <- sort(n.v.scm, decreasing = T)
-n.v.scm %>% head()
-
-read.csv("F:/Genomics data analysis/RSS1/DEseq2/Data files/CSV files/DE_TSCM vs TCM.csv", header = T) -> res.scm.cm
-#rownames(res_Naive_all) <- res_Naive_all$X
-#res_Naive_all$X <- NULL
-
-scm.v.cm <- res.scm.cm$log2FoldChange
-names(scm.v.cm) <- res.scm.cm$external_gene_name
-scm.v.cm <- na.omit(scm.v.cm)
-scm.v.cm %>% length()
-which(duplicated(scm.v.cm)) %>% length()
-scm.v.cm <- scm.v.cm[which(!duplicated(scm.v.cm))]
-scm.v.cm %>% length()
-scm.v.cm <- sort(scm.v.cm, decreasing = T)
-scm.v.cm %>% head()
+abc <- c1.v.c2.gsea@result
+abc$Comparison <- "Celltype1 vs Celltype2"
+write.csv(abc, "gsea.results.csv")
 ```
 
-```{r}
-n.v.scm.gsea <- clusterProfiler::GSEA(geneList = n.v.scm, TERM2GENE = cyto.list, pvalueCutoff = 1)
-scm.v.cm.gsea <- clusterProfiler::GSEA(geneList = scm.v.cm, TERM2GENE = cyto.list, pvalueCutoff = 1)
-
-n.v.scm.gsea2 <- clusterProfiler::GSEA(geneList = n.v.scm, TERM2GENE = gene.list, pvalueCutoff = 1, nPermSimple = 10000, eps = 0)
-scm.v.cm.gsea2 <- clusterProfiler::GSEA(geneList = scm.v.cm, TERM2GENE = gene.list, pvalueCutoff = 1, nPermSimple = 10000, eps = 0)
-```
-
-```{r}
-gseaplot2(n.v.scm.gsea2, geneSetID = 1:2, pvalue_table = FALSE,
-          color = c("#E495A5", "#86B875", "#7DB0DD", "#000000"), ES_geom = "line",
-          title = "Naive vs TSCM",
-          base_size = 12)
-
-gseaplot2(scm.v.cm.gsea2, geneSetID = 1:3, pvalue_table = FALSE,
-          color = c("#E495A5", "#86B875", "#7DB0DD"), ES_geom = "line",
-          title = "TSCM vs TCM",
-          base_size = 12)
-```
-
-```{r}
-abc <- eff.v.cd8ra.gsea@result
-def <- n.v.scm.gsea@result
-ghi <- n.v.scm.gsea2@result
-jkl <- scm.v.cm.gsea@result
-mno <- scm.v.cm.gsea2@result
-```
-
-```{r}
-abc$Comparison <- "Effectors vs CD8-TEMRA"
-def$Comparison <- "Naive vs TSCM"
-ghi$Comparison <- "Naive vs TSCM"
-jkl$Comparison <- "TSCM vs TCM"
-mno$Comparison <- "TSCM vs TCM"
-
-all <- rbind(abc, def, ghi, jkl, mno)
-
-write.csv(all, "gsea.results.csv")
-```
 
