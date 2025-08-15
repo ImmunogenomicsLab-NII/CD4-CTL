@@ -272,7 +272,7 @@ colAnn <- HeatmapAnnotation(df = ann,
   gap = unit(1, 'mm'))
 ```
 
-#generate heatmap after ordering rows and inputting symbols (Figure 1 and 3)
+#generate heatmap after ordering rows and inputting symbols (Figures 1 and 2)
 ```{r}
 log2(counts(run) + 0.5)[ne100, ] -> l2.run.ne100
 
@@ -311,7 +311,7 @@ p3
 dev.off()
 ```
 
-#PCA plot for Naive vs Effectors genes (Figure 3)
+#PCA plot for Naive vs Effectors genes (Figure 2)
 ```{r}
 read.csv("../nve_l2fc2_both.txt", header = F) -> nve2
 nve2$V1 -> nve2
@@ -342,7 +342,7 @@ annotated_pca_plot
 dev.off()
 ```
 
-#gsea plots for Celltype1 vs Celltype2 (Figure 1 and 3)
+#gsea plots for Celltype1 vs Celltype2 (Figures 1 and 2)
 ```{r}
 #GSEA using DESeq2 results
 
