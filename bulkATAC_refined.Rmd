@@ -1,0 +1,193 @@
+---
+title: "bulkATAC_refined"
+output: html_notebook
+---
+
+
+```{r}
+library(DESeq2)
+library(dplyr)
+library(ggplot2)
+library(pheatmap)
+library("RColorBrewer")
+library(clusterProfiler)
+library(biomaRt)
+library(org.Hs.eg.db)
+library(gprofiler2)
+library(ggsci)
+library(ggfortify)
+library(ComplexHeatmap)
+library(paletteer)
+library(dendextend)
+library(EnhancedVolcano)
+library(ggbreak)
+library(EnsDb.Hsapiens.v86)
+library(circlize)
+library(ggpubr)
+library(ArchR)
+```
+
+#read in peak-wise count file generated using diffBind on nfcore pipeline output files
+```{r}
+read.csv("bATAC_alldonors_100bpsummit.csv") -> batac
+batac  %>% head()
+```
+
+```{r}
+batac.filt1 <- batac[, c("peak", "SYMBOL", "annotation", "d10_N", "d1_N", "d2_N", "d3_N", "d4_N", "d5_N", "d6_N", "d7_N", "d8_N", "d9_N",
+                        "d10_SCM", "d1_SCM", "d2_SCM", "d3_SCM", "d4_SCM", "d5_SCM", "d6_SCM", "d7_SCM", "d8_SCM", "d9_SCM",
+                        "d10_TCM", "d1_TCM", "d2_TCM", "d3_TCM", "d4_TCM", "d5_TCM", "d6_TCM", "d7_TCM", "d8_TCM", "d9_TCM",
+                        "d10_TEM", "d1_TEM", "d2_TEM", "d3_TEM", "d4_TEM", "d5_TEM", "d6_TEM", "d7_TEM", "d8_TEM", "d9_TEM",
+                        "d10_P", "d1_P", "d2_P", "d3_P", "d4_P", "d5_P", "d6_P", "d7_P", "d8_P", "d9_P",
+                        "d10_E", "d1_E", "d2_E", "d3_E", "d4_E", "d5_E", "d6_E", "d7_E", "d8_E", "d9_E")]
+```
+
+#plot pca using MVR2000 (Figure S2E)
+```{r}
+read.csv("2000MVRs.txt", header = F) -> mvr2000
+batac.filt1[(batac.filt1$peak %in% mvr2000), ] -> batac.mvr2000
+
+batac.mvr2000$peak -> rownames(batac.mvr2000)
+batac.mvr2000$peak <- NULL
+
+batac.mvr2000$SYMBOL <- NULL
+batac.mvr2000$annotation <- NULL
+
+batac.mvr2000 %>% as.matrix() -> batac.mvr2000.m
+```
+
+```{r}
+rv <- rowVars(batac.mvr2000.m, useNames = F)
+
+# select the ntop genes by variance
+select <- order(rv, decreasing=TRUE)
+
+mvr2000.pca <- prcomp(t(batac.mvr2000.m[select, ]), 
+                   center = TRUE, 
+                   scale. = TRUE)
+
+summary(mvr2000.pca)
+```
+
+```{r}
+ann2 -> intgroup.df
+intgroup.df$condition <- colnames(batac.mvr2000)
+
+rownames(intgroup.df) <- intgroup.df$condition
+```
+
+```{r}
+group <- factor(intgroup.df$CellType, levels = c("Naive", "TSCM", "TCM", "TEM", "Precursors", "Effectors"))
+```
+
+```{r}
+pcs <- paste0("PC", 1:2)
+d <- data.frame(V1=mvr2000.pca$x[,1],
+                V2=mvr2000.pca$x[,2],
+                group=group, intgroup.df, name=colnames(batac.mvr2000))
+colnames(d)[1:2] <- pcs
+
+percentVar <- mvr2000.pca$sdev^2 / sum(mvr2000.pca$sdev^2 )
+```
+
+```{r}
+ggplot(data=d, aes_string(x=pcs[1], y=pcs[2], color="group")) +
+    geom_point(size=3) + 
+    xlab(paste0(pcs[1],": ",round(percentVar[1] * 100),"% variance")) +
+      ylab(paste0(pcs[2],": ",round(percentVar[2] * 100),"% variance")) +
+        coord_fixed()+
+  scale_color_manual(values=my_cols1)+
+  theme_classic()
+```
+
+```{r}
+my_cols <- c("#7F7F7F", "#548234", "#842121", "#FFA500", "#00BFC4", "#F8766D")
+names(my_cols) <- c("Naive", "TSCM", "TCM", "TEM", "Precursors", "Effectors")
+
+pdf(sprintf("%s/2000MVRs_pca_r.pdf", IMG_OUT), width=6, height=5)
+ggplot(data=d, aes_string(x=pcs[1], y=pcs[2], color="group")) +
+    geom_point(size=2) + 
+    xlab(paste0(pcs[1],": ",round(percentVar[1] * 100),"% variance")) +
+      ylab(paste0(pcs[2],": ",round(percentVar[2] * 100),"% variance")) +
+        coord_fixed()+
+  scale_color_manual(values=my_cols1)+
+  theme_classic()
+dev.off()
+```
+
+#heatmap for MVR2000 split into constituents (Figure S2D)
+```{r}
+#batac.mvr1000$SYMBOL <- NULL
+batac.filt1[(batac.filt1$peak %in% mvr2000), ] -> batac.mvr2000
+
+batac.mvr2000$peak -> rownames(batac.mvr2000)
+batac.mvr2000$peak <- NULL
+
+batac.mvr2000$SYMBOL <- NULL
+
+batac.mvr2000[grep("^Promoter", batac.mvr2000$annotation), ] -> batac.mvr2000.prom
+batac.mvr2000[grep("^Distal Intergenic", batac.mvr2000$annotation), ] -> batac.mvr2000.di
+batac.mvr2000[grep("^Exon", batac.mvr2000$annotation), ] -> batac.mvr2000.exon
+batac.mvr2000[grep("^Intron", batac.mvr2000$annotation), ] -> batac.mvr2000.intron
+batac.mvr2000[grep("^Downstream", batac.mvr2000$annotation), ] -> batac.mvr2000.dn
+batac.mvr2000[grep("^3' UTR", batac.mvr2000$annotation), ] -> batac.mvr2000.3utr
+batac.mvr2000[grep("^5' UTR", batac.mvr2000$annotation), ] -> batac.mvr2000.5utr
+
+batac.mvr2000.prom$annotation <- NULL
+batac.mvr2000.di$annotation <- NULL
+batac.mvr2000.exon$annotation <- NULL
+batac.mvr2000.intron$annotation <- NULL
+batac.mvr2000.dn$annotation <- NULL
+batac.mvr2000.3utr$annotation <- NULL
+batac.mvr2000.5utr$annotation <- NULL
+
+batac.mvr2000.prom %>% as.matrix %>% t() %>% apply(., 2, min_max_scale, min_val = -2, max_val = 2) %>% t() -> batac.mvr2000.prom.m.scaled
+batac.mvr2000.di %>% as.matrix %>% t() %>% apply(., 2, min_max_scale, min_val = -2, max_val = 2) %>% t() -> batac.mvr2000.di.m.scaled
+batac.mvr2000.exon %>% as.matrix %>% t() %>% apply(., 2, min_max_scale, min_val = -2, max_val = 2) %>% t() -> batac.mvr2000.exon.m.scaled
+batac.mvr2000.intron %>% as.matrix %>% t() %>% apply(., 2, min_max_scale, min_val = -2, max_val = 2) %>% t() -> batac.mvr2000.intron.m.scaled
+batac.mvr2000.dn %>% as.matrix %>% t() %>% apply(., 2, min_max_scale, min_val = -2, max_val = 2) %>% t() -> batac.mvr2000.dn.m.scaled
+batac.mvr2000.3utr %>% as.matrix %>% t() %>% apply(., 2, min_max_scale, min_val = -2, max_val = 2) %>% t() -> batac.mvr2000.3utr.m.scaled
+batac.mvr2000.5utr %>% as.matrix %>% t() %>% apply(., 2, min_max_scale, min_val = -2, max_val = 2) %>% t() -> batac.mvr2000.5utr.m.scaled
+
+
+Heatmap(batac.mvr2000.prom.m.scaled, cluster_columns = FALSE, cluster_rows = T, col = paletteContinuous(set = "solarExtra", n=256, reverse = FALSE), row_names_gp = gpar(fontsize = 6), column_names_gp = gpar(fontsize = 6),
+        #top_annotation = colAnn2, 
+        show_row_names = F) -> p1
+
+Heatmap(batac.mvr2000.di.m.scaled, cluster_columns = FALSE, cluster_rows = T, col = paletteContinuous(set = "solarExtra", n=256, reverse = FALSE), row_names_gp = gpar(fontsize = 6), column_names_gp = gpar(fontsize = 6),
+        #top_annotation = colAnn2, 
+        show_row_names = F) -> p2
+
+Heatmap(batac.mvr2000.exon.m.scaled, cluster_columns = FALSE, cluster_rows = T, col = paletteContinuous(set = "solarExtra", n=256, reverse = FALSE), row_names_gp = gpar(fontsize = 6), column_names_gp = gpar(fontsize = 6),
+        #top_annotation = colAnn2, 
+        show_row_names = F) -> p3
+
+Heatmap(batac.mvr2000.intron.m.scaled, cluster_columns = FALSE, cluster_rows = T, col = paletteContinuous(set = "solarExtra", n=256, reverse = FALSE), row_names_gp = gpar(fontsize = 6), column_names_gp = gpar(fontsize = 6),
+        #top_annotation = colAnn2, 
+        show_row_names = F) -> p4
+
+Heatmap(batac.mvr2000.dn.m.scaled, cluster_columns = FALSE, cluster_rows = T, col = paletteContinuous(set = "solarExtra", n=256, reverse = FALSE), row_names_gp = gpar(fontsize = 6), column_names_gp = gpar(fontsize = 6),
+        #top_annotation = colAnn2, 
+        show_row_names = F) -> p5
+
+Heatmap(batac.mvr2000.3utr.m.scaled, cluster_columns = FALSE, cluster_rows = T, col = paletteContinuous(set = "solarExtra", n=256, reverse = FALSE), row_names_gp = gpar(fontsize = 6), column_names_gp = gpar(fontsize = 6),
+        #top_annotation = colAnn2, 
+        show_row_names = F) -> p6
+
+Heatmap(batac.mvr2000.5utr.m.scaled, cluster_columns = FALSE, cluster_rows = T, col = paletteContinuous(set = "solarExtra", n=256, reverse = FALSE), row_names_gp = gpar(fontsize = 6), column_names_gp = gpar(fontsize = 6),
+        #top_annotation = colAnn2, 
+        show_row_names = F) -> p7
+
+ht_list1 = colAnn2 %v% p1 %v% p2 %v% p3 %v% p4 %v% p5 %v% p6 %v% p7
+
+draw(ht_list1, ht_gap = unit(c(0.5, 1, 1, 1, 1, 1, 1), "mm"))
+```
+
+```{r}
+#top annotation for heatmap were generated in the same way as for bulkRNA
+pdf(sprintf("%s/2000MVRs_di_within1000.pdf", IMG_OUT), width=10, height=8)
+Heatmap(batac.mvr1000.di.m.scaled, cluster_columns = FALSE, cluster_rows = T, col = col_fun_peaks, row_names_gp = gpar(fontsize = 6), column_names_gp = gpar(fontsize = 6),
+        top_annotation = colAnn2, show_row_names = F)
+dev.off()
+```
+
